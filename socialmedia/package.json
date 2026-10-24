@@ -1,0 +1,15 @@
+{
+  "name": "gather-social",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gather social community prototype",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0"
+  }
+}

@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f8fc">
+  <title>Gather — your people, your pace</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --ink: #18202c;
+      --muted: #8991a0;
+      --line: #edf0f4;
+      --paper: #fff;
+      --canvas: #f7f8fc;
+      --purple: #7356e8;
+      --purple-dark: #6043d2;
+      --lavender: #f0edff;
+      --coral: #ff766d;
+      --green: #35b887;
+      --shadow: 0 8px 32px rgba(31, 37, 58, .045);
+      font-family: "DM Sans", "Manrope", sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; }
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    .topbar {
+      height: 76px; display: flex; align-items: center; gap: 32px; padding: 0 4.2%;
+      background: rgba(255,255,255,.94); border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 240px; text-decoration: none; color: var(--ink); }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; color: white; background: linear-gradient(145deg,#9279ff,#6849df); box-shadow: 0 6px 14px #7457e83b; }
+    .brand-name { font: 800 22px Manrope, sans-serif; letter-spacing: -.8px; }
+    .brand-name span { color: var(--purple); }
+    .search { position: relative; width: min(440px, 40vw); }
+    .search input { width: 100%; height: 42px; border: 1px solid transparent; outline: none; background: #f5f6fa; border-radius: 14px; padding: 0 16px 0 43px; color: var(--ink); font-size: 13px; transition: .2s; }
+    .search input:focus { border-color: #d8d0ff; background: white; box-shadow: 0 0 0 3px #7356e812; }
+    .search svg { position: absolute; top: 12px; left: 14px; color: #a1a7b3; }
+    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .icon-button { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 13px; background: #f5f6fa; cursor: pointer; position: relative; transition: .18s; }
+    .icon-button:hover { background: var(--lavender); color: var(--purple); transform: translateY(-1px); }
+    .notification-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); position: absolute; top: 8px; right: 8px; border: 1px solid white; }
+    .top-avatar { width: 40px; height: 40px; object-fit: cover; border-radius: 14px; margin-left: 3px; border: 2px solid white; box-shadow: 0 0 0 1px var(--line); }
+    .layout { max-width: 1420px; margin: 0 auto; padding: 28px 30px 48px; display: grid; grid-template-columns: 224px minmax(0, 620px) 300px; gap: 28px; align-items: start; }
+    .left-rail { position: sticky; top: 101px; }
+    .profile-mini { display: flex; align-items: center; gap: 12px; padding: 13px 12px 20px; border-bottom: 1px solid var(--line); }
+    .profile-mini img { width: 42px; height: 42px; border-radius: 15px; object-fit: cover; }
+    .profile-mini strong, .profile-mini span { display: block; }
+    .profile-mini strong { font-size: 13px; }
+    .profile-mini span { color: var(--muted); font-size: 11px; margin-top: 3px; }
+    .nav-list { display: grid; gap: 5px; padding: 19px 0; }
+    .nav-item { display: flex; align-items: center; gap: 13px; padding: 12px 13px; color: #747d8c; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: 12px; transition: .16s; cursor: pointer; border: 0; background: transparent; text-align: left; }
+    .nav-item:hover { background: #fff; color: var(--purple); }
+    .nav-item.active { color: var(--purple); background: var(--lavender); }
+    .nav-item svg { flex: 0 0 auto; }
+    .nav-count { margin-left: auto; padding: 3px 7px; color: var(--purple); background: white; border-radius: 8px; font-size: 10px; }
+    .rail-label { color: #a1a7b3; text-transform: uppercase; letter-spacing: 1.2px; font-size: 9px; font-weight: 800; padding: 8px 13px; }
+    .community-list { display: grid; gap: 15px; padding: 8px 12px; }
+    .community { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; }
+    .community img { width: 30px; height: 30px; object-fit: cover; border-radius: 10px; }
+    .online-small { width: 7px; height: 7px; background: var(--green); border: 1px solid white; border-radius: 50%; margin-left: auto; }
+    .rail-footer { color: #a5abb5; font-size: 10px; line-height: 1.8; padding: 28px 12px 0; }
+    .rail-footer a { color: inherit; text-decoration: none; }
+    .feed-column { min-width: 0; }
+    .welcome { display: flex; align-items: flex-end; justify-content: space-between; margin: 2px 2px 21px; }
+    .welcome p { color: var(--muted); font-size: 12px; margin: 0 0 5px; }
+    h1 { font: 800 25px Manrope, sans-serif; letter-spacing: -.8px; margin: 0; }
+    .day-pill { color: #9299a7; font-size: 11px; padding: 8px 11px; background: white; border: 1px solid var(--line); border-radius: 10px; }
+    .stories { display: flex; gap: 12px; overflow-x: auto; padding: 2px 1px 18px; scrollbar-width: none; }
+    .stories::-webkit-scrollbar { display: none; }
+    .story { flex: 0 0 82px; text-align: center; cursor: pointer; }
+    .story-ring { width: 66px; height: 66px; padding: 3px; border-radius: 22px; margin: auto auto 8px; background: linear-gradient(145deg,#f3a268,#ed5f91,#8062f1); transition: transform .18s; }
+    .story:hover .story-ring { transform: translateY(-3px) rotate(-2deg); }
+    .story-ring img { width: 100%; height: 100%; border: 2px solid white; border-radius: 20px; object-fit: cover; }
+    .story.add .story-ring { display: grid; place-items: center; color: var(--purple); background: white; border: 1px dashed #d5cdfa; padding: 0; }
+    .story.add .story-ring svg { background: var(--lavender); border-radius: 14px; padding: 9px; width: 38px; height: 38px; }
+    .story-name { color: #687181; font-size: 10px; white-space: nowrap; }
+    .composer { padding: 17px 19px; margin-bottom: 17px; background: var(--paper); border: 1px solid #f0f1f5; border-radius: 18px; box-shadow: var(--shadow); }
+    .compose-row { display: flex; align-items: center; gap: 11px; }
+    .compose-row img { width: 39px; height: 39px; border-radius: 14px; object-fit: cover; }
+    .compose-trigger { text-align: left; padding: 12px 15px; border: 0; background: #f6f7fa; color: #9aa0ad; border-radius: 13px; width: 100%; font-size: 12px; cursor: pointer; }
+    .compose-trigger:hover { background: var(--lavender); color: var(--purple); }
+    .compose-tools { display: flex; justify-content: space-between; align-items: center; margin: 14px 1px 0 50px; }
+    .compose-tools button { display: inline-flex; align-items: center; gap: 7px; border: 0; background: transparent; color: #818a99; font-size: 10px; cursor: pointer; padding: 5px; border-radius: 8px; }
+    .compose-tools button:hover { background: #f6f4ff; color: var(--purple); }
+    .feed-tabs { display: flex; gap: 6px; margin: 7px 0 13px; }
+    .feed-tab { padding: 8px 13px; border-radius: 9px; border: 0; background: transparent; color: #9299a7; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .feed-tab.active { background: white; color: var(--purple); box-shadow: 0 2px 10px #2222; }
+    .post { background: white; border: 1px solid #f0f1f5; border-radius: 18px; margin-bottom: 16px; overflow: hidden; box-shadow: var(--shadow); }
+    .post-head { display: flex; align-items: center; padding: 17px 18px 12px; gap: 11px; }
+    .post-head img { width: 39px; height: 39px; object-fit: cover; border-radius: 14px; }
+    .post-author { flex: 1; }
+    .post-author strong { display: block; font-size: 12px; }
+    .post-author span { display: block; color: #a0a6b1; font-size: 10px; margin-top: 4px; }
+    .more-btn { border: 0; background: transparent; color: #9aa1ad; cursor: pointer; letter-spacing: 2px; font-size: 18px; padding: 5px 8px; }
+    .post-copy { margin: 0; padding: 0 19px 13px; color: #596272; font-size: 12px; line-height: 1.65; }
+    .post-copy strong { color: var(--purple); font-weight: 600; }
+    .post-image { display: block; width: calc(100% - 28px); height: 290px; object-fit: cover; margin: 0 14px; border-radius: 13px; background: #eceaf5; }
+    .post-image.video { height: 300px; }
+    .video-frame { position: relative; overflow: hidden; margin: 0 14px; height: 300px; border-radius: 13px; background: linear-gradient(160deg,#efb594,#c37d6f 43%,#342b4c); }
+    .video-frame img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.82); }
+    .play-button { position: absolute; inset: 0; margin: auto; width: 54px; height: 54px; color: white; background: #ffffff38; border: 1px solid #ffffff91; border-radius: 50%; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(8px); transition: .2s; }
+    .play-button:hover { transform: scale(1.1); background: #ffffff59; }
+    .video-caption { position: absolute; bottom: 14px; left: 15px; color: white; font-size: 11px; text-shadow: 0 1px 5px #0008; }
+    .post-meta { display: flex; justify-content: space-between; color: #9aa1ad; padding: 12px 19px 0; font-size: 10px; }
+    .reaction-avatars { display: inline-flex; align-items: center; margin-right: 5px; }
+    .reaction-avatars img { width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid white; object-fit: cover; margin-right: -5px; }
+    .post-actions { display: flex; gap: 4px; padding: 8px 14px 12px; margin: 0 5px; border-top: 1px solid #f3f3f6; margin-top: 10px; }
+    .post-actions button { flex: 1; display: flex; justify-content: center; align-items: center; gap: 7px; border: 0; border-radius: 10px; background: transparent; padding: 9px 4px; color: #878f9d; font-size: 10px; font-weight: 600; cursor: pointer; }
+    .post-actions button:hover { background: #f7f6fc; color: var(--purple); }
+    .post-actions button.liked { color: #ed6d81; }
+    .post-actions button.liked svg { fill: #ed6d81; }
+    .right-rail { position: sticky; top: 101px; display: grid; gap: 16px; }
+    .side-card { background: white; border: 1px solid #f0f1f5; border-radius: 17px; padding: 17px; box-shadow: var(--shadow); }
+    .side-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .side-title h2 { font: 800 13px Manrope,sans-serif; margin: 0; letter-spacing: -.2px; }
+    .side-title button { border: 0; background: transparent; color: var(--purple); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .event { display: flex; align-items: center; gap: 11px; padding: 9px 0; }
+    .event-date { flex: 0 0 42px; height: 46px; display: grid; place-content: center; text-align: center; background: #f3f0ff; color: var(--purple); border-radius: 11px; }
+    .event-date b { font-size: 14px; line-height: 1; }
+    .event-date span { font-size: 8px; font-weight: 800; margin-top: 4px; letter-spacing: .6px; }
+    .event-info { min-width: 0; }
+    .event-info strong { display: block; font-size: 10px; }
+    .event-info span { display: block; color: #a1a7b1; font-size: 9px; margin-top: 4px; }
+    .event-arrow { margin-left: auto; color: #b2b7c1; font-size: 16px; }
+    .trend { display: flex; gap: 10px; padding: 8px 0; align-items: flex-start; }
+    .trend-number { color: #b6bdc9; font-size: 10px; font-weight: 700; padding-top: 1px; }
+    .trend strong { display: block; font-size: 10px; }
+    .trend span { display: block; color: #a1a7b1; font-size: 9px; margin-top: 4px; }
+    .people-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+    .people-row img { width: 34px; height: 34px; object-fit: cover; border-radius: 12px; }
+    .people-copy { flex: 1; min-width: 0; }
+    .people-copy strong { display: block; font-size: 10px; }
+    .people-copy span { display: block; color: #a1a7b1; font-size: 9px; margin-top: 3px; }
+    .follow-btn { width: 27px; height: 27px; border: 0; color: var(--purple); background: var(--lavender); border-radius: 9px; font-weight: 700; font-size: 16px; cursor: pointer; }
+    .follow-btn.following { color: var(--green); background: #e9f8f1; font-size: 12px; }
+    .chat-fab { position: fixed; z-index: 30; right: 26px; bottom: 24px; display: flex; align-items: center; gap: 10px; color: white; background: var(--purple); border: 0; border-radius: 15px; padding: 12px 16px; box-shadow: 0 8px 24px #7356e84d; font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; }
+    .chat-fab:hover { background: var(--purple-dark); transform: translateY(-2px); }
+    .chat-window { display: none; position: fixed; z-index: 31; right: 26px; bottom: 83px; width: 320px; height: 405px; flex-direction: column; background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 15px 45px #20243b28; overflow: hidden; }
+    .chat-window.open { display: flex; }
+    .chat-head { display: flex; align-items: center; gap: 10px; padding: 14px; border-bottom: 1px solid var(--line); }
+    .chat-head img { width: 34px; height: 34px; border-radius: 12px; object-fit: cover; }
+    .chat-head strong { font-size: 12px; flex: 1; }
+    .chat-head span { display: block; color: var(--green); font-size: 9px; margin-top: 3px; }
+    .chat-close { border: 0; background: transparent; color: #8e95a1; font-size: 19px; cursor: pointer; }
+    .chat-messages { display: flex; flex: 1; flex-direction: column; gap: 10px; overflow-y: auto; padding: 15px; background: #fbfbfd; }
+    .message { max-width: 82%; padding: 10px 12px; border-radius: 12px 12px 12px 3px; background: white; color: #626b7a; font-size: 10px; line-height: 1.5; box-shadow: 0 2px 6px #18202c0b; }
+    .message.mine { align-self: flex-end; color: white; background: var(--purple); border-radius: 12px 12px 3px 12px; }
+    .chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+    .chat-form input { flex: 1; min-width: 0; border: 0; outline: 0; background: #f5f6fa; border-radius: 10px; padding: 10px; font-size: 10px; }
+    .chat-form button { border: 0; color: white; background: var(--purple); border-radius: 10px; padding: 0 12px; cursor: pointer; }
+    .modal-backdrop { display: none; position: fixed; z-index: 40; inset: 0; place-items: center; background: #17182866; padding: 18px; }
+    .modal-backdrop.open { display: grid; }
+    .modal { width: min(470px, 100%); border-radius: 20px; background: white; padding: 22px; box-shadow: 0 20px 70px #16152b40; }
+    .modal.media-modal { max-height: min(88vh, 800px); overflow-y: auto; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .modal-head h2 { font: 800 18px Manrope,sans-serif; margin: 0; }
+    .modal textarea { width: 100%; min-height: 95px; resize: vertical; border: 1px solid var(--line); border-radius: 13px; padding: 13px; outline: none; font-size: 12px; }
+    .modal textarea:focus { border-color: #c7bbff; box-shadow: 0 0 0 3px #7356e812; }
+    .composer-tabs { display: flex; gap: 7px; margin: 0 0 15px; }
+    .composer-tab { border: 1px solid var(--line); border-radius: 9px; background: white; color: #818a99; padding: 8px 12px; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .composer-tab.active { color: var(--purple); border-color: #dcd5ff; background: #f7f5ff; }
+    .upload-section[hidden], .upload-preview[hidden] { display: none; }
+    .upload-section { margin: 0 0 13px; }
+    .upload-label { display: block; color: #596272; font-size: 10px; font-weight: 700; margin: 0 0 7px; }
+    .file-picker { width: 100%; border: 1px dashed #d7dbea; border-radius: 11px; padding: 11px; background: #fafaff; color: #777f8e; font-size: 10px; }
+    .file-picker::file-selector-button { border: 0; border-radius: 7px; padding: 7px 9px; margin-right: 9px; color: var(--purple); background: var(--lavender); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .upload-help { color: #9299a7; font-size: 9px; line-height: 1.5; margin: 6px 1px 0; }
+    .upload-preview { width: 100%; max-height: 210px; object-fit: contain; margin: 9px 0 12px; border-radius: 11px; background: #151620; }
+    .music-picker-row { display: flex; align-items: center; gap: 8px; }
+    .music-picker-row select { flex: 1; min-width: 0; height: 39px; border: 1px solid #e8eaf0; border-radius: 9px; padding: 0 9px; background: white; color: #626b7a; font-size: 10px; }
+    .music-upload-btn { flex: 0 0 auto; border: 1px solid #e4defb; border-radius: 9px; background: #f8f6ff; color: var(--purple); padding: 10px; font-size: 9px; font-weight: 700; cursor: pointer; }
+    .upload-status { min-height: 14px; color: #6c7380; font-size: 9px; margin: 5px 1px 0; }
+    .post-image.uploaded-photo { height: auto; max-height: 440px; object-fit: contain; background: #f4f3f7; }
+    .uploaded-video { width: calc(100% - 28px); max-height: 480px; display: block; object-fit: contain; margin: 0 14px; border-radius: 13px; background: #171620; }
+    .post-music { display: flex; align-items: center; gap: 8px; margin: 10px 18px 0; color: #777f8e; font-size: 10px; }
+    .post-music audio { flex: 1; min-width: 0; width: 100%; height: 35px; }
+    .upload-progress { height: 4px; overflow: hidden; border-radius: 4px; background: #eeedf4; margin-top: 8px; }
+    .upload-progress[hidden] { display: none; }
+    .upload-progress span { display: block; width: 0; height: 100%; background: linear-gradient(90deg,#9279ff,#6849df); transition: width .15s; }
+    .modal-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; color: #9ba2af; font-size: 10px; }
+    .primary-btn { color: white; background: var(--purple); border: 0; border-radius: 10px; padding: 10px 16px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .primary-btn:hover { background: var(--purple-dark); }
+    .empty-state { display: none; background: white; border-radius: 16px; padding: 28px; text-align: center; color: var(--muted); font-size: 12px; }
+    .toast { position: fixed; z-index: 50; left: 50%; bottom: 26px; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; padding: 10px 16px; color: white; background: #22273a; border-radius: 11px; font-size: 11px; transition: .2s; }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    .app-shell[hidden], .auth-screen[hidden] { display: none; }
+    .auth-screen { min-height: 100vh; display: grid; grid-template-columns: minmax(300px, 1fr) minmax(360px, 1fr); background: white; }
+    .auth-art { min-height: 100vh; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(28px, 5vw, 64px); color: white; background: linear-gradient(145deg, #6c52dcde, #3c3475a8), url("https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=85") center/cover; }
+    .auth-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg,#18152a66,transparent 65%); pointer-events: none; }
+    .auth-art > * { position: relative; z-index: 1; }
+    .auth-art .brand { color: white; }
+    .auth-art .brand-name span { color: #e4dcff; }
+    .auth-art-copy { max-width: 450px; }
+    .auth-art-copy h1 { font: 800 clamp(36px, 5vw, 58px)/1.12 Manrope,sans-serif; letter-spacing: -2px; margin-bottom: 15px; }
+    .auth-art-copy p { color: #ffffffd9; font-size: 14px; line-height: 1.7; max-width: 380px; }
+    .auth-quote { color: #ffffffc7; font-size: 11px; }
+    .auth-panel { min-height: 100vh; display: grid; place-items: center; padding: 34px 26px; }
+    .auth-content { width: min(380px, 100%); }
+    .auth-eyebrow { color: var(--purple); font-size: 10px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; }
+    .auth-content h2 { font: 800 29px Manrope,sans-serif; letter-spacing: -1px; margin: 10px 0 7px; }
+    .auth-subtitle { color: var(--muted); font-size: 12px; margin: 0 0 23px; }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: #f5f5f9; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+    .auth-tab { border: 0; border-radius: 9px; padding: 10px; background: transparent; color: #858d9a; font-weight: 700; font-size: 11px; cursor: pointer; }
+    .auth-tab.active { color: var(--purple); background: white; box-shadow: 0 2px 8px #25284412; }
+    .auth-form { display: grid; gap: 13px; }
+    .auth-field { display: grid; gap: 7px; color: #525b69; font-size: 10px; font-weight: 700; }
+    .auth-field[hidden] { display: none; }
+    .auth-field input { width: 100%; height: 43px; padding: 0 12px; border: 1px solid #e8eaf0; border-radius: 10px; outline: none; font-size: 12px; transition: .18s; }
+    .auth-field input:focus { border-color: #b9aaff; box-shadow: 0 0 0 3px #7356e812; }
+    .auth-submit { min-height: 44px; border: 0; border-radius: 11px; color: white; background: var(--purple); margin-top: 3px; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .auth-submit:hover { background: var(--purple-dark); }
+    .auth-submit:disabled { opacity: .65; cursor: wait; }
+    .auth-error { display: none; border-radius: 9px; padding: 10px 11px; background: #fff0ef; color: #b34640; font-size: 11px; line-height: 1.5; }
+    .auth-error.visible { display: block; }
+    .auth-footnote { color: #a0a6b2; text-align: center; font-size: 10px; line-height: 1.6; margin: 15px 0 0; }
+    .profile-mini { position: relative; }
+    .signout-btn { margin-left: auto; border: 0; background: transparent; color: #9ba1ad; font-size: 10px; cursor: pointer; padding: 6px; }
+    .signout-btn:hover { color: var(--purple); }
+    @media (max-width: 690px) {
+      .auth-screen { display: block; background: var(--canvas); }
+      .auth-art { min-height: 210px; padding: 22px 24px; }
+      .auth-art-copy h1 { font-size: 30px; letter-spacing: -1px; margin: 24px 0 5px; }
+      .auth-art-copy p { font-size: 11px; margin: 0; }
+      .auth-quote { display: none; }
+      .auth-panel { min-height: calc(100vh - 210px); padding: 26px 21px; }
+      .auth-content h2 { font-size: 25px; }
+    }
+    @media (max-width: 1120px) {
+      .layout { grid-template-columns: 190px minmax(0, 1fr); max-width: 900px; }
+      .right-rail { display: none; }
+      .brand { min-width: 190px; }
+    }
+    @media (max-width: 690px) {
+      .topbar { height: 64px; padding: 0 15px; gap: 14px; }
+      .brand { min-width: 0; gap: 7px; }
+      .brand-mark { width: 34px; height: 34px; }
+      .brand-name { font-size: 19px; }
+      .search { flex: 1; width: auto; }
+      .search input { height: 38px; padding-left: 36px; font-size: 11px; }
+      .search svg { left: 11px; top: 10px; }
+      .top-actions { gap: 8px; }
+      .top-actions .icon-button:first-child { display: none; }
+      .top-avatar { width: 35px; height: 35px; }
+      .layout { display: block; padding: 20px 13px 78px; }
+      .left-rail { display: none; }
+      .welcome { margin: 0 2px 17px; }
+      h1 { font-size: 22px; }
+      .day-pill { display: none; }
+      .post-image, .video-frame { height: 245px; }
+      .composer { padding: 14px; }
+      .compose-tools { margin-left: 0; }
+      .compose-tools button { gap: 4px; font-size: 9px; }
+      .chat-fab { right: 15px; bottom: 15px; }
+      .chat-window { right: 12px; bottom: 74px; width: min(340px, calc(100vw - 24px)); }
+    }
+    @media (max-width: 390px) {
+      .topbar { gap: 9px; }
+      .brand-name { font-size: 17px; }
+      .brand-mark { width: 31px; height: 31px; }
+      .top-actions .icon-button { width: 35px; height: 35px; }
+      .top-avatar { display: none; }
+      .compose-tools button:nth-child(3) { display: none; }
+      .post-image, .video-frame { height: 210px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="auth-screen" id="authScreen">
+    <section class="auth-art">
+      <a class="brand" href="#" aria-label="Gather">
+        <span class="brand-mark"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.1 8.2a4.9 4.9 0 0 1 8.8-1.4M16.9 15.8a4.9 4.9 0 0 1-8.8 1.4M16.8 6.3l-.6 2.3-2.3-.6M7.2 17.7l.6-2.3 2.3.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/></svg></span>
+        <span class="brand-name">gather<span>.</span></span>
+      </a>
+      <div class="auth-art-copy">
+        <h1>Your people.<br>Your kind of place.</h1>
+        <p>A little less scrolling past strangers. A little more catching up, sharing moments, and finding your people.</p>
+      </div>
+      <div class="auth-quote">A calmer corner of the internet, made for you.</div>
+    </section>
+    <section class="auth-panel">
+      <div class="auth-content">
+        <span class="auth-eyebrow">Welcome to your circle</span>
+        <h2 id="authTitle">Good to see you.</h2>
+        <p class="auth-subtitle" id="authSubtitle">Sign in and pick up where your people are.</p>
+        <div class="auth-tabs" role="tablist" aria-label="Account access">
+          <button class="auth-tab active" id="loginTab" type="button" role="tab" aria-selected="true">Log in</button>
+          <button class="auth-tab" id="signupTab" type="button" role="tab" aria-selected="false">Create account</button>
+        </div>
+        <form class="auth-form" id="authForm">
+          <div class="auth-error" id="authError" role="alert"></div>
+          <label class="auth-field" id="nameField" hidden>
+            Your name
+            <input id="authName" name="name" autocomplete="name" maxlength="48" placeholder="Alex Morgan">
+          </label>
+          <label class="auth-field">
+            Email address
+            <input id="authEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
+          </label>
+          <label class="auth-field">
+            Password
+            <input id="authPassword" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+          </label>
+          <button class="auth-submit" id="authSubmit" type="submit">Log in</button>
+        </form>
+        <p class="auth-footnote">Your account details are stored securely and only used to sign you in.</p>
+      </div>
+    </section>
+  </main>
+  <div class="app-shell" id="appShell" hidden>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Gather home">
+      <span class="brand-mark"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.1 8.2a4.9 4.9 0 0 1 8.8-1.4M16.9 15.8a4.9 4.9 0 0 1-8.8 1.4M16.8 6.3l-.6 2.3-2.3-.6M7.2 17.7l.6-2.3 2.3.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/></svg></span>
+      <span class="brand-name">gather<span>.</span></span>
+    </a>
+    <label class="search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.3 4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input id="searchInput" type="search" placeholder="Search people, places, and moments..." aria-label="Search Gather">
+    </label>
+    <div class="top-actions">
+      <button class="icon-button" aria-label="Create post" id="topCreate"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="icon-button" aria-label="Notifications" id="notifications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="notification-dot"></i></button>
+      <img class="top-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80" alt="Your profile">
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="left-rail" aria-label="Main navigation">
+      <div class="profile-mini">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80" alt="">
+        <div><strong data-profile-name>Gather member</strong><span data-profile-email></span></div>
+        <button class="signout-btn" id="signoutButton" type="button">Log out</button>
+      </div>
+      <nav class="nav-list">
+        <button class="nav-item active" data-view="Home"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Home</button>
+        <button class="nav-item" data-view="Messages"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1 2 1-5a7.5 7.5 0 1 1 15-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 11h.01M12 11h.01M16 11h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Messages<span class="nav-count">3</span></button>
+        <button class="nav-item" data-view="Explore"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="m15.5 8.5-2.1 4.9-4.9 2.1 2.1-4.9 4.9-2.1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Explore</button>
+        <button class="nav-item" data-view="Clips"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="4" stroke="currentColor" stroke-width="1.7"/><path d="m10 8 5 4-5 4V8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Clips</button>
+        <button class="nav-item" data-view="Saved"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Saved</button>
+      </nav>
+      <div class="rail-label">Your circles</div>
+      <div class="community-list">
+        <div class="community"><img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=80&h=80&q=80" alt="">Weekend people<span class="online-small"></span></div>
+        <div class="community"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&h=80&q=80" alt="">Design friends<span class="online-small"></span></div>
+        <div class="community"><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=80&h=80&q=80" alt="">Little adventures</div>
+      </div>
+      <div class="rail-footer">About · Community · Guidelines<br>Privacy · Terms · © Gather <span id="year"></span></div>
+    </aside>
+
+    <section class="feed-column" aria-label="Your feed">
+      <div class="welcome">
+        <div><p id="todayDate"></p><h1>Good morning, <span data-heading-name>Alex</span> <span aria-hidden="true">☀️</span></h1></div>
+        <span class="day-pill">Your corner of the internet</span>
+      </div>
+      <div class="stories" aria-label="Stories">
+        <div class="story add" id="addStory" role="button" tabindex="0"><div class="story-ring"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="story-name">Your moment</div></div>
+        <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=120&h=120&q=80" alt=""></div><div class="story-name">Maya Chen</div></div>
+        <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80" alt=""></div><div class="story-name">Jordan Lee</div></div>
+        <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&h=120&q=80" alt=""></div><div class="story-name">Sofia Reyes</div></div>
+        <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&h=120&q=80" alt=""></div><div class="story-name">Noah Kim</div></div>
+        <div class="story"><div class="story-ring"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" alt=""></div><div class="story-name">Priya Shah</div></div>
+      </div>
+
+      <div class="composer">
+        <div class="compose-row">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80" alt="">
+          <button class="compose-trigger" id="composeTrigger">What’s happening in your world?</button>
+        </div>
+        <div class="compose-tools">
+          <button data-tool="Photo"><span style="color:#55bd91">▧</span> Photo</button>
+          <button data-tool="Clip"><span style="color:#ff8072">▷</span> Clip</button>
+          <button data-tool="Feeling"><span style="color:#f1b04f">☺</span> Feeling</button>
+          <button data-tool="Check in"><span style="color:#8b78eb">⌖</span> Check in</button>
+        </div>
+      </div>
+
+      <div class="feed-tabs" role="tablist">
+        <button class="feed-tab active" role="tab" aria-selected="true">For you</button>
+        <button class="feed-tab" role="tab" aria-selected="false">Following</button>
+        <button class="feed-tab" role="tab" aria-selected="false">Latest</button>
+      </div>
+      <div id="posts">
+        <article class="post" data-kind="photo">
+          <div class="post-head">
+            <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&h=100&q=80" alt="Maya Chen">
+            <div class="post-author"><strong>Maya Chen</strong><span>2 hours ago · Portland, OR</span></div>
+            <button class="more-btn" aria-label="More options">···</button>
+          </div>
+          <p class="post-copy">Took the long way home and found my new favorite little corner of the city. <strong>#slowmorning</strong> 🌿</p>
+          <img class="post-image" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1100&h=700&q=85" alt="Sunlight spilling through a quiet forest trail">
+          <div class="post-meta"><span><span class="reaction-avatars"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=40&h=40&q=80" alt=""><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=40&h=40&q=80" alt=""></span><span class="like-count">48</span> people felt this</span><span>12 comments · 3 shares</span></div>
+          <div class="post-actions">
+            <button class="like-action" aria-label="Like post"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.8 8.7c0 4.1-8.8 10.2-8.8 10.2S3.2 12.8 3.2 8.7a4.3 4.3 0 0 1 8.8-1.2 4.3 4.3 0 0 1 8.8 1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Like</button>
+            <button class="comment-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1 2 1-5a7.5 7.5 0 1 1 15-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Comment</button>
+            <button class="share-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m14 5 6 6-6 6M20 11H9a5 5 0 0 0-5 5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Share</button>
+          </div>
+        </article>
+        <article class="post" data-kind="clip">
+          <div class="post-head">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80" alt="Jordan Lee">
+            <div class="post-author"><strong>Jordan Lee</strong><span>4 hours ago · A tiny clip from today</span></div>
+            <button class="more-btn" aria-label="More options">···</button>
+          </div>
+          <p class="post-copy">POV: you finally take that weekend trip ✨</p>
+          <div class="video-frame">
+            <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1000&h=700&q=85" alt="A peaceful alpine lake surrounded by mountains">
+            <button class="play-button" aria-label="Play clip"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.8c0-.8.9-1.3 1.6-.8l9 6.2a1 1 0 0 1 0 1.6l-9 6.2c-.7.5-1.6 0-1.6-.8V5.8Z"/></svg></button>
+            <span class="video-caption">▶ &nbsp; 0:18 &nbsp; · &nbsp; Weekend reset</span>
+          </div>
+          <div class="post-meta"><span><span class="reaction-avatars"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=40&h=40&q=80" alt=""></span><span class="like-count">126</span> people loved this</span><span>8 comments · 14 shares</span></div>
+          <div class="post-actions">
+            <button class="like-action" aria-label="Like post"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.8 8.7c0 4.1-8.8 10.2-8.8 10.2S3.2 12.8 3.2 8.7a4.3 4.3 0 0 1 8.8-1.2 4.3 4.3 0 0 1 8.8 1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Like</button>
+            <button class="comment-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1 2 1-5a7.5 7.5 0 1 1 15-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Comment</button>
+            <button class="share-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m14 5 6 6-6 6M20 11H9a5 5 0 0 0-5 5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Share</button>
+          </div>
+        </article>
+        <article class="post" data-kind="photo">
+          <div class="post-head">
+            <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=100&h=100&q=80" alt="Sofia Reyes">
+            <div class="post-author"><strong>Sofia Reyes</strong><span>Yesterday · Shared with friends</span></div>
+            <button class="more-btn" aria-label="More options">···</button>
+          </div>
+          <p class="post-copy">A table full of good food and even better people. This is the stuff. 💛</p>
+          <img class="post-image" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1100&h=700&q=85" alt="Friends gathered around a cozy dinner table">
+          <div class="post-meta"><span><span class="reaction-avatars"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=40&h=40&q=80" alt=""></span><span class="like-count">34</span> people felt this</span><span>6 comments · 2 shares</span></div>
+          <div class="post-actions">
+            <button class="like-action" aria-label="Like post"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.8 8.7c0 4.1-8.8 10.2-8.8 10.2S3.2 12.8 3.2 8.7a4.3 4.3 0 0 1 8.8-1.2 4.3 4.3 0 0 1 8.8 1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Like</button>
+            <button class="comment-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1 2 1-5a7.5 7.5 0 1 1 15-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Comment</button>
+            <button class="share-action"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m14 5 6 6-6 6M20 11H9a5 5 0 0 0-5 5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Share</button>
+          </div>
+        </article>
+      </div>
+      <div class="empty-state" id="emptyState">No moments found. Try another search.</div>
+    </section>
+
+    <aside class="right-rail" aria-label="Community updates">
+      <section class="side-card">
+        <div class="side-title"><h2>On the calendar</h2><button class="show-all">See all</button></div>
+        <div class="event"><div class="event-date"><b>25</b><span>OCT</span></div><div class="event-info"><strong>Sunday market stroll</strong><span>Tomorrow · 10:30 AM</span></div><span class="event-arrow">›</span></div>
+        <div class="event"><div class="event-date" style="background:#fff1ed;color:#ed796a"><b>28</b><span>OCT</span></div><div class="event-info"><strong>Sketch & sip night</strong><span>Wed · 7:00 PM · 8 going</span></div><span class="event-arrow">›</span></div>
+      </section>
+      <section class="side-card">
+        <div class="side-title"><h2>Little things trending</h2><button class="show-all">Explore</button></div>
+        <div class="trend"><span class="trend-number">01</span><div><strong>#SundaySomewhere</strong><span>2.4k moments this week</span></div></div>
+        <div class="trend"><span class="trend-number">02</span><div><strong>Desk with a view</strong><span>1.8k moments this week</span></div></div>
+        <div class="trend"><span class="trend-number">03</span><div><strong>Currently reading</strong><span>946 moments this week</span></div></div>
+      </section>
+      <section class="side-card">
+        <div class="side-title"><h2>People you may like</h2><button class="show-all">See all</button></div>
+        <div class="people-row"><img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&h=100&q=80" alt=""><div class="people-copy"><strong>Noah Kim</strong><span>3 friends in common</span></div><button class="follow-btn" aria-label="Follow Noah Kim">+</button></div>
+        <div class="people-row"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&h=100&q=80" alt=""><div class="people-copy"><strong>Priya Shah</strong><span>2 friends in common</span></div><button class="follow-btn" aria-label="Follow Priya Shah">+</button></div>
+        <div class="people-row"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80" alt=""><div class="people-copy"><strong>Emma Brooks</strong><span>From your city</span></div><button class="follow-btn" aria-label="Follow Emma Brooks">+</button></div>
+      </section>
+    </aside>
+  </main>
+
+  <button class="chat-fab" id="chatToggle"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1 2 1-5a7.5 7.5 0 1 1 15-4.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Messages <span style="background:#ffffff38;border-radius:7px;padding:3px 6px;font-size:9px">3</span></button>
+  <section class="chat-window" id="chatWindow" aria-label="Messages">
+    <div class="chat-head"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=100&h=100&q=80" alt=""><strong>Maya Chen<span>Active now</span></strong><button class="chat-close" id="chatClose" aria-label="Close messages">×</button></div>
+    <div class="chat-messages" id="chatMessages"><div class="message">Hey! Are we still on for the market tomorrow? 🌷</div><div class="message mine">Absolutely! I've been looking forward to it.</div><div class="message">Perfect, see you at 10:30 ☕</div></div>
+    <form class="chat-form" id="chatForm"><input id="chatInput" placeholder="Write a message..." aria-label="Write a message"><button aria-label="Send message">↑</button></form>
+  </section>
+  </div>
+
+  <div class="modal-backdrop" id="postModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <form class="modal media-modal" id="postForm">
+      <div class="modal-head"><h2 id="modalTitle">Share a moment</h2><button type="button" class="chat-close" id="modalClose" aria-label="Close">×</button></div>
+      <div class="composer-tabs" role="tablist" aria-label="Choose what to share">
+        <button class="composer-tab active" type="button" data-composer-mode="photo" role="tab" aria-selected="true">Photo</button>
+        <button class="composer-tab" type="button" data-composer-mode="reel" role="tab" aria-selected="false">Reel</button>
+        <button class="composer-tab" type="button" data-composer-mode="text" role="tab" aria-selected="false">Text</button>
+      </div>
+      <label class="upload-section" id="photoUploadSection">
+        <span class="upload-label">Add a photo <span style="font-weight:400;color:#969dab">(optional)</span></span>
+        <input class="file-picker" id="photoFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+        <span class="upload-help">JPG, PNG, WebP, or GIF. Maximum 12 MB.</span>
+        <img class="upload-preview" id="photoPreview" alt="Photo preview" hidden>
+      </label>
+      <div class="upload-section" id="reelUploadSection" hidden>
+        <label class="upload-label" for="reelVideoFile">Choose your reel video</label>
+        <input class="file-picker" id="reelVideoFile" type="file" accept="video/mp4,video/webm">
+        <p class="upload-help">MP4 or WebM video. Maximum 100 MB.</p>
+        <video class="upload-preview" id="reelPreview" controls playsinline preload="metadata" hidden></video>
+        <span class="upload-label" style="margin-top:13px">Add a music track <span style="font-weight:400;color:#969dab">(optional)</span></span>
+        <div class="music-picker-row">
+          <select id="musicSelect" aria-label="Choose a saved music track">
+            <option value="">No music</option>
+          </select>
+          <button class="music-upload-btn" id="uploadMusicButton" type="button">+ Add music</button>
+          <input id="musicFile" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/ogg,audio/flac,audio/mp4,audio/x-m4a,.mp3,.wav,.ogg,.flac,.m4a" hidden>
+        </div>
+        <p class="upload-help">MP3, WAV, OGG, FLAC, or M4A. Add music you own or have permission to use.</p>
+        <div class="upload-status" id="musicStatus" aria-live="polite"></div>
+      </div>
+      <label class="upload-section" id="textPostHelp" hidden>
+        <span class="upload-label">Text moment</span>
+      </label>
+      <textarea id="postText" placeholder="What’s happening in your world?" aria-label="Your caption or post" maxlength="500"></textarea>
+      <div class="upload-progress" id="uploadProgress" hidden><span id="uploadProgressBar"></span></div>
+      <div class="upload-status" id="postStatus" role="status" aria-live="polite"></div>
+      <div class="modal-bottom"><span>Your people will see this on their feed</span><button class="primary-btn" id="sharePostButton" type="submit">Share photo</button></div>
+    </form>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const authScreen = document.getElementById('authScreen');
+    const appShell = document.getElementById('appShell');
+    const authForm = document.getElementById('authForm');
+    const authName = document.getElementById('authName');
+    const authEmail = document.getElementById('authEmail');
+    const authPassword = document.getElementById('authPassword');
+    const authError = document.getElementById('authError');
+    let authMode = 'login';
+    let currentUser = null;
+
+    function showAuthError(message) {
+      authError.textContent = message;
+      authError.classList.add('visible');
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const signup = mode === 'signup';
+      document.getElementById('loginTab').classList.toggle('active', !signup);
+      document.getElementById('signupTab').classList.toggle('active', signup);
+      document.getElementById('loginTab').setAttribute('aria-selected', String(!signup));
+      document.getElementById('signupTab').setAttribute('aria-selected', String(signup));
+      document.getElementById('authTitle').textContent = signup ? 'Find your people.' : 'Good to see you.';
+      document.getElementById('authSubtitle').textContent = signup
+        ? 'Create an account and make this space yours.'
+        : 'Sign in and pick up where your people are.';
+      document.getElementById('nameField').hidden = !signup;
+      authName.required = signup;
+      authPassword.minLength = signup ? 8 : 1;
+      authPassword.autocomplete = signup ? 'new-password' : 'current-password';
+      document.getElementById('authSubmit').textContent = signup ? 'Create my account' : 'Log in';
+      authError.classList.remove('visible');
+    }
+
+    function enterApp(user) {
+      currentUser = user;
+      document.querySelectorAll('[data-profile-name]').forEach(element => {
+        element.textContent = user.name;
+      });
+      document.querySelectorAll('[data-profile-email]').forEach(element => {
+        element.textContent = user.email;
+      });
+      document.querySelectorAll('[data-heading-name]').forEach(element => {
+        element.textContent = user.name;
+      });
+      document.querySelectorAll('.top-avatar, .profile-mini > img, .compose-row > img').forEach(image => {
+        image.alt = user.name;
+      });
+      authScreen.hidden = true;
+      appShell.hidden = false;
+      loadCommunityFeed();
+      loadMusicLibrary();
+    }
+
+    async function checkSession() {
+      try {
+        const response = await fetch('/api/me', { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error('Could not check your session. Please refresh to try again.');
+        const data = await response.json();
+        if (data.user) enterApp(data.user);
+        else authScreen.hidden = false;
+      } catch (error) {
+        authScreen.hidden = false;
+        showAuthError(error.message || 'Could not reach Gather. Make sure the app server is running.');
+      }
+    }
+
+    document.getElementById('loginTab').addEventListener('click', () => setAuthMode('login'));
+    document.getElementById('signupTab').addEventListener('click', () => setAuthMode('signup'));
+    authForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      authError.classList.remove('visible');
+      const submit = document.getElementById('authSubmit');
+      submit.disabled = true;
+      try {
+        const response = await fetch(`/api/${authMode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name: authName.value.trim(),
+            email: authEmail.value.trim(),
+            password: authPassword.value
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'We could not sign you in. Please try again.');
+        authPassword.value = '';
+        enterApp(data.user);
+      } catch (error) {
+        showAuthError(error.message || 'Could not reach Gather. Please try again.');
+      } finally {
+        submit.disabled = false;
+      }
+    });
+    document.getElementById('signoutButton').addEventListener('click', async () => {
+      const button = document.getElementById('signoutButton');
+      button.disabled = true;
+      try {
+        const response = await fetch('/api/logout', { method: 'POST', headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error('Could not log out. Please try again.');
+        appShell.hidden = true;
+        authScreen.hidden = false;
+        setAuthMode('login');
+        authPassword.value = '';
+      } catch (error) {
+        showToast(error.message || 'Could not log out. Please try again.');
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    checkSession();
+
+    const today = new Date();
+    document.getElementById('todayDate').textContent = today.toLocaleDateString(undefined, {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric'
+    });
+    document.getElementById('year').textContent = String(today.getFullYear());
+
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function uploadForm(url, formData, onProgress) {
+      return new Promise((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        request.open('POST', url);
+        request.responseType = 'json';
+        request.upload.addEventListener('progress', event => {
+          if (event.lengthComputable && onProgress) onProgress(Math.round(event.loaded / event.total * 100));
+        });
+        request.addEventListener('load', () => {
+          const result = request.response;
+          if (request.status < 200 || request.status >= 300) {
+            reject(new Error(result?.error || 'The upload could not be completed. Please try again.'));
+            return;
+          }
+          resolve(result);
+        });
+        request.addEventListener('error', () => reject(new Error('The upload failed because of a network error.')));
+        request.addEventListener('abort', () => reject(new Error('The upload was canceled.')));
+        request.send(formData);
+      });
+    }
+
+    async function loadMusicLibrary() {
+      try {
+        const response = await fetch('/api/music', { headers: { Accept: 'application/json' } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not load your music library.');
+        const select = document.getElementById('musicSelect');
+        const selected = select.value;
+        select.replaceChildren(new Option('No music', ''));
+        result.tracks.forEach(track => select.add(new Option(track.name, track.id)));
+        if (result.tracks.some(track => track.id === selected)) select.value = selected;
+      } catch (error) {
+        document.getElementById('musicStatus').textContent = error.message || 'Could not load your music library.';
+      }
+    }
+
+    function addPostAction(actions, label, type, icon) {
+      const button = document.createElement('button');
+      button.className = `${type}-action`;
+      button.setAttribute('aria-label', label);
+      button.innerHTML = icon;
+      button.append(document.createTextNode(label));
+      actions.append(button);
+    }
+
+    function wirePostActions(post) {
+      const like = post.querySelector('.like-action');
+      like?.addEventListener('click', () => {
+        const liked = like.classList.toggle('liked');
+        const count = post.querySelector('.like-count');
+        if (count) count.textContent = String(Number(count.textContent) + (liked ? 1 : -1));
+        like.setAttribute('aria-label', liked ? 'Unlike post' : 'Like post');
+      });
+      post.querySelector('.comment-action')?.addEventListener('click', () => showToast('Comments are ready for your next conversation.'));
+      post.querySelector('.share-action')?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast('Link copied — share the good stuff!');
+        } catch {
+          showToast('This moment is ready to share!');
+        }
+      });
+      post.querySelector('.more-btn')?.addEventListener('click', () => showToast('More post options coming soon.'));
+    }
+
+    function renderPost(data) {
+      const post = document.createElement('article');
+      post.className = 'post';
+      post.dataset.kind = data.kind === 'reel' ? 'reel' : data.kind;
+      const header = document.createElement('div');
+      header.className = 'post-head';
+      const avatar = document.createElement('img');
+      avatar.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80';
+      avatar.alt = '';
+      const author = document.createElement('div');
+      author.className = 'post-author';
+      const name = document.createElement('strong');
+      name.textContent = data.author.name;
+      const timestamp = document.createElement('span');
+      timestamp.textContent = 'Shared just now';
+      author.append(name, timestamp);
+      const more = document.createElement('button');
+      more.className = 'more-btn';
+      more.setAttribute('aria-label', 'More options');
+      more.textContent = '···';
+      header.append(avatar, author, more);
+      post.append(header);
+      if (data.caption) {
+        const copy = document.createElement('p');
+        copy.className = 'post-copy';
+        copy.textContent = data.caption;
+        post.append(copy);
+      }
+      if (data.media?.url && data.kind === 'photo') {
+        const image = document.createElement('img');
+        image.className = 'post-image uploaded-photo';
+        image.src = data.media.url;
+        image.alt = data.caption || 'Photo shared on Gather';
+        post.append(image);
+      } else if (data.media?.url && data.kind === 'reel') {
+        const video = document.createElement('video');
+        video.className = 'uploaded-video';
+        video.src = data.media.url;
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.setAttribute('aria-label', data.caption || 'Gather reel');
+        post.append(video);
+        if (data.music?.url) {
+          const music = document.createElement('div');
+          music.className = 'post-music';
+          const label = document.createElement('span');
+          label.textContent = `♫ ${data.music.name}`;
+          const audio = document.createElement('audio');
+          audio.src = data.music.url;
+          audio.controls = true;
+          audio.preload = 'none';
+          audio.setAttribute('aria-label', `Play ${data.music.name}`);
+          music.append(label, audio);
+          post.append(music);
+          video.muted = true;
+          video.addEventListener('play', () => {
+            if (Number.isFinite(audio.duration) && audio.duration > 0) audio.currentTime = video.currentTime % audio.duration;
+            audio.play().catch(() => showToast('Press play on the music track to hear it with your reel.'));
+          });
+          video.addEventListener('pause', () => audio.pause());
+          video.addEventListener('ended', () => audio.pause());
+          video.addEventListener('timeupdate', () => {
+            if (Number.isFinite(audio.duration) && audio.duration > 0 && Math.abs(audio.currentTime - video.currentTime % audio.duration) > 0.5) {
+              audio.currentTime = video.currentTime % audio.duration;
+            }
+          });
+          audio.addEventListener('play', () => {
+            if (video.paused) video.play().catch(() => showToast('Press play on your reel to sync its music.'));
+          });
+          audio.addEventListener('pause', () => {
+            if (!video.paused) video.pause();
+          });
+        }
+      }
+      const meta = document.createElement('div');
+      meta.className = 'post-meta';
+      meta.innerHTML = '<span><span class="like-count">0</span> people felt this</span><span>Be the first to react</span>';
+      post.append(meta);
+      const actions = document.createElement('div');
+      actions.className = 'post-actions';
+      addPostAction(actions, 'Like', 'like', '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20.8 8.7c0 4.1-8.8 10.2-8.8 10.2S3.2 12.8 3.2 8.7a4.3 4.3 0 0 1 8.8-1.2 4.3 4.3 0 0 1 8.8 1.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>');
+      addPostAction(actions, 'Comment', 'comment', '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H5l-1 2 1-5a7.5 7.5 0 1 1 15-4.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>');
+      addPostAction(actions, 'Share', 'share', '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m14 5 6 6-6 6M20 11H9a5 5 0 0 0-5 5v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+      post.append(actions);
+      wirePostActions(post);
+      return post;
+    }
+
+    async function loadCommunityFeed() {
+      try {
+        const response = await fetch('/api/posts', { headers: { Accept: 'application/json' } });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not load community posts.');
+        const posts = document.getElementById('posts');
+        result.posts.slice().reverse().forEach(item => {
+          if (!posts.querySelector(`[data-post-id="${item.id}"]`)) {
+            const post = renderPost(item);
+            post.dataset.postId = String(item.id);
+            posts.prepend(post);
+          }
+        });
+        applySearch();
+      } catch (error) {
+        showToast(error.message || 'Could not load community posts.');
+      }
+    }
+
+    const modal = document.getElementById('postModal');
+    const postText = document.getElementById('postText');
+    let composerMode = 'photo';
+    function setComposerMode(mode) {
+      composerMode = mode;
+      document.querySelectorAll('.composer-tab').forEach(tab => {
+        const active = tab.dataset.composerMode === mode;
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', String(active));
+      });
+      document.getElementById('photoUploadSection').hidden = mode !== 'photo';
+      document.getElementById('reelUploadSection').hidden = mode !== 'reel';
+      postText.placeholder = mode === 'text' ? 'What’s happening in your world?' : 'Add a caption…';
+      document.getElementById('sharePostButton').textContent = mode === 'reel'
+        ? 'Share reel'
+        : mode === 'text' ? 'Share moment' : 'Share photo';
+      document.getElementById('postStatus').textContent = '';
+      document.getElementById('musicStatus').textContent = '';
+    }
+
+    function openComposer(mode = 'photo') {
+      setComposerMode(mode);
+      modal.classList.add('open');
+      setTimeout(() => (mode === 'reel' ? document.getElementById('reelVideoFile') : postText).focus(), 0);
+    }
+    function closeComposer() {
+      modal.classList.remove('open');
+    }
+    document.getElementById('composeTrigger').addEventListener('click', openComposer);
+    document.getElementById('topCreate').addEventListener('click', openComposer);
+    document.querySelectorAll('.composer-tab').forEach(tab => tab.addEventListener('click', () => setComposerMode(tab.dataset.composerMode)));
+    document.getElementById('modalClose').addEventListener('click', closeComposer);
+    modal.addEventListener('click', event => { if (event.target === modal) closeComposer(); });
+
+    document.getElementById('photoFile').addEventListener('change', event => {
+      const file = event.target.files[0];
+      const preview = document.getElementById('photoPreview');
+      if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
+      if (!file) {
+        preview.hidden = true;
+        preview.removeAttribute('src');
+        return;
+      }
+      preview.dataset.objectUrl = URL.createObjectURL(file);
+      preview.src = preview.dataset.objectUrl;
+      preview.hidden = false;
+    });
+    document.getElementById('reelVideoFile').addEventListener('change', event => {
+      const file = event.target.files[0];
+      const preview = document.getElementById('reelPreview');
+      if (preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
+      if (!file) {
+        preview.hidden = true;
+        preview.removeAttribute('src');
+        return;
+      }
+      preview.dataset.objectUrl = URL.createObjectURL(file);
+      preview.src = preview.dataset.objectUrl;
+      preview.hidden = false;
+    });
+    document.getElementById('uploadMusicButton').addEventListener('click', () => document.getElementById('musicFile').click());
+    document.getElementById('musicFile').addEventListener('change', async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const status = document.getElementById('musicStatus');
+      status.textContent = 'Uploading your music…';
+      try {
+        const formData = new FormData();
+        formData.append('music', file);
+        const result = await uploadForm('/api/music', formData);
+        await loadMusicLibrary();
+        document.getElementById('musicSelect').value = result.track.id;
+        status.textContent = `${result.track.name} added to your music library.`;
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        event.target.value = '';
+      }
+    });
+
+    document.getElementById('postForm').addEventListener('submit', async event => {
+      event.preventDefault();
+      const text = postText.value.trim();
+      const photo = document.getElementById('photoFile').files[0];
+      const video = document.getElementById('reelVideoFile').files[0];
+      if (composerMode === 'text' && !text) {
+        document.getElementById('postStatus').textContent = 'Write a moment before sharing it.';
+        return;
+      }
+      if (composerMode === 'photo' && !photo && !text) {
+        document.getElementById('postStatus').textContent = 'Add a photo or write a caption to share.';
+        return;
+      }
+      if (composerMode === 'reel' && !video) {
+        document.getElementById('postStatus').textContent = 'Choose a video before sharing your reel.';
+        return;
+      }
+
+      const formData = new FormData();
+      const kind = composerMode === 'reel' ? 'reel' : composerMode === 'photo' && photo ? 'photo' : 'text';
+      formData.append('kind', kind);
+      formData.append('caption', text);
+      if (kind === 'photo') formData.append('photo', photo);
+      if (kind === 'reel') {
+        formData.append('video', video);
+        const musicId = document.getElementById('musicSelect').value;
+        if (musicId) formData.append('musicId', musicId);
+      }
+      const submit = document.getElementById('sharePostButton');
+      const status = document.getElementById('postStatus');
+      submit.disabled = true;
+      status.textContent = 'Sharing your moment…';
+      const progress = document.getElementById('uploadProgress');
+      progress.hidden = kind === 'text';
+      try {
+        await uploadForm('/api/posts', formData, percent => {
+          document.getElementById('uploadProgressBar').style.width = `${percent}%`;
+        });
+        postText.value = '';
+        document.getElementById('photoFile').value = '';
+        document.getElementById('reelVideoFile').value = '';
+        document.getElementById('musicSelect').value = '';
+        document.getElementById('photoPreview').hidden = true;
+        document.getElementById('reelPreview').pause();
+        document.getElementById('reelPreview').hidden = true;
+        status.textContent = '';
+        closeComposer();
+        await loadCommunityFeed();
+        showToast(kind === 'reel' ? 'Your reel is out in the world 🎬' : 'Your moment is out in the world ✨');
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        submit.disabled = false;
+        progress.hidden = true;
+        document.getElementById('uploadProgressBar').style.width = '0';
+      }
+    });
+
+    document.querySelectorAll('#posts .post').forEach(wirePostActions);
+    document.querySelectorAll('.follow-btn').forEach(button => button.addEventListener('click', () => {
+      const following = button.classList.toggle('following');
+      button.textContent = following ? '✓' : '+';
+      button.setAttribute('aria-label', following ? 'Unfollow' : 'Follow');
+      showToast(following ? 'You’re connected now!' : 'You unfollowed this person.');
+    }));
+
+    document.querySelectorAll('.feed-tab').forEach(tab => tab.addEventListener('click', () => {
+      document.querySelectorAll('.feed-tab').forEach(item => {
+        item.classList.remove('active');
+        item.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      const following = tab.textContent.trim() === 'Following';
+      document.querySelectorAll('#posts .post').forEach(post => post.style.display = following && post.querySelector('.post-author strong')?.textContent === 'Alex Morgan' ? 'none' : '');
+      applySearch();
+      if (tab.textContent.trim() === 'Latest') showToast('You’re all caught up with the latest moments.');
+    }));
+    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
+      const view = item.dataset.view;
+      if (view === 'Messages') document.getElementById('chatWindow').classList.add('open');
+      else if (view === 'Home') {
+        document.getElementById('chatWindow').classList.remove('open');
+        document.querySelectorAll('#posts .post').forEach(post => post.style.display = '');
+        document.querySelectorAll('.feed-tab').forEach(tab => tab.classList.toggle('active', tab.textContent.trim() === 'For you'));
+        applySearch();
+      } else if (view === 'Clips') {
+        document.querySelectorAll('.feed-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('#posts .post').forEach(post => post.style.display = ['clip', 'reel'].includes(post.dataset.kind) ? '' : 'none');
+        document.getElementById('emptyState').style.display = 'none';
+        showToast('A little inspiration, just for you.');
+      } else if (view !== 'Messages' && view !== 'Home') {
+        document.querySelectorAll('#posts .post').forEach(post => post.style.display = '');
+        document.querySelectorAll('.feed-tab').forEach(tab => tab.classList.toggle('active', tab.textContent.trim() === 'For you'));
+        showToast(view === 'Saved' ? 'Your saved moments will live here.' : `${view} is ready to explore.`);
+      }
+    }));
+    document.querySelectorAll('.compose-tools button').forEach(button => button.addEventListener('click', () => {
+      if (button.dataset.tool === 'Photo') openComposer('photo');
+      else if (button.dataset.tool === 'Clip') openComposer('reel');
+      else {
+        openComposer('text');
+        showToast(`${button.dataset.tool} sharing is coming right up.`);
+      }
+    }));
+    document.querySelectorAll('.show-all').forEach(button => button.addEventListener('click', () => showToast('More community updates are on their way.')));
+    document.getElementById('notifications').addEventListener('click', () => showToast('You’re all caught up! 💜'));
+    document.querySelectorAll('.play-button').forEach(button => button.addEventListener('click', () => showToast('Clip playback is ready for your next visit.')));
+    document.querySelectorAll('.story:not(.add)').forEach(story => story.addEventListener('click', () => showToast(`${story.querySelector('.story-name').textContent}’s moment is opening.`)));
+    document.getElementById('addStory').addEventListener('click', openComposer);
+    document.getElementById('addStory').addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') openComposer(); });
+
+    const chatWindow = document.getElementById('chatWindow');
+    document.getElementById('chatToggle').addEventListener('click', () => chatWindow.classList.toggle('open'));
+    document.getElementById('chatClose').addEventListener('click', () => chatWindow.classList.remove('open'));
+    document.getElementById('chatForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const message = document.createElement('div');
+      message.className = 'message mine';
+      message.textContent = text;
+      document.getElementById('chatMessages').append(message);
+      input.value = '';
+      message.scrollIntoView({ block: 'nearest' });
+    });
+
+    function applySearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('#posts .post').forEach(post => {
+        const matches = !query || post.textContent.toLowerCase().includes(query);
+        const filteredOut = post.style.display === 'none' && !query;
+        if (matches && !filteredOut) {
+          post.style.display = '';
+          visible++;
+        } else if (!matches) post.style.display = 'none';
+      });
+      document.getElementById('emptyState').style.display = visible ? 'none' : 'block';
+    }
+    document.getElementById('searchInput').addEventListener('input', applySearch);
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeComposer(); });
+  </script>
+</body>
+</html>
